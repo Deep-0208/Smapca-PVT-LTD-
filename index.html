@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smapca PVT LTD</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        background: linear-gradient(to right, #f6d365, #fda085);
+      }
+      h1 {
+        background: linear-gradient(to right, #ff007f, #ffcc00);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+      }
+      .search-bar,
+      .category-filter {
+        margin: 20px;
+      }
+      .search-bar input,
+      .category-filter select {
+        padding: 10px;
+        width: 300px;
+        font-size: 16px;
+      }
+      .cart-icon {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 10px;
+        border-radius: 50px;
+      }
+      .cart-container {
+        display: none;
+        position: fixed;
+        top: 60px;
+        right: 20px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        width: 250px;
+      }
+      .product-list,
+      .cart {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .product {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px;
+        width: 200px;
+        text-align: center;
+        border-radius: 5px;
+        background: white;
+      }
+      button {
+        margin-top: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      .remove-btn {
+        background-color: red;
+        color: white;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Smapca PVT LTD</h1>
+    <div class="search-bar">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search for items..."
+        onkeyup="searchItems()"
+      />
+    </div>
+    <div class="category-filter">
+      <select id="category" onchange="filterByCategory()">
+        <option value="all">All Categories</option>
+        <option value="cuboidal">Cuboidal</option>
+        <option value="cylindrical">Cylindrical</option>
+        <option value="spherical">Spherical</option>
+      </select>
+    </div>
+    <div class="cart-icon" onclick="toggleCart()">
+      🛒 <span id="cart-count">0</span>
+    </div>
+
+    <div class="cart-container" id="cart-container">
+      <h2>Shopping Cart</h2>
+      <div class="cart" id="cart"></div>
+      <h3>Total: ₹<span id="total">0</span></h3>
+    </div>
+
+    <div class="product-list" id="product-list"></div>
+
+    <script>
+      let cart = [];
+      let products = [
+        {
+          name: "Parle G",
+          price: 10,
+          category: "cuboidal",
+          image: "download.jpg",
+        },
+        { name: "Maggie", price: 25, category: "cuboidal" },
+        { name: "Kitkat", price: 20, category: "cuboidal" },
+        { name: "Coca Cola", price: 40, category: "cylindrical" },
+        { name: "Pepsi", price: 40, category: "cylindrical" },
+        { name: "Fanta", price: 35, category: "cylindrical" },
+        { name: "Oreo", price: 30, category: "cuboidal" },
+        { name: "Monaco", price: 20, category: "cuboidal" },
+        { name: "Mountain Dew", price: 40, category: "cylindrical" },
+        { name: "Sprite", price: 40, category: "cylindrical" },
+        { name: "Gems", price: 30, category: "spherical" },
+        { name: "Maazaa", price: 140, category: "cylindrical" },
+      ];
+
+      function toggleCart() {
+        let cartContainer = document.getElementById("cart-container");
+        cartContainer.style.display =
+          cartContainer.style.display === "none" ||
+          cartContainer.style.display === ""
+            ? "block"
+            : "none";
+      }
+
+      function searchItems() {
+        let query = document.getElementById("search").value.toLowerCase();
+        let filteredProducts = products.filter((product) =>
+          product.name.toLowerCase().includes(query)
+        );
+        displayProducts(filteredProducts);
+      }
+
+      function filterByCategory() {
+        let category = document.getElementById("category").value;
+        let filteredProducts =
+          category === "all"
+            ? products
+            : products.filter((product) => product.category === category);
+        displayProducts(filteredProducts);
+      }
+
+      function addToCart(name, price) {
+        let item = cart.find((product) => product.name === name);
+        if (item) {
+          item.quantity += 1;
+        } else {
+          cart.push({ name, price, quantity: 1 });
+        }
+        updateCart();
+      }
+
+      function removeFromCart(name) {
+        cart = cart.filter((item) => item.name !== name);
+        updateCart();
+      }
+
+      function updateCart() {
+        let cartElement = document.getElementById("cart");
+        let totalElement = document.getElementById("total");
+        let cartCount = document.getElementById("cart-count");
+
+        cartElement.innerHTML = "";
+        let total = 0;
+        cart.forEach((item) => {
+          total += item.price * item.quantity;
+          cartElement.innerHTML += `
+                    <div>
+                        ${item.name} (x${item.quantity}) - ₹${
+            item.price * item.quantity
+          }
+                        <button class="remove-btn" onclick="removeFromCart('${
+                          item.name
+                        }')">Remove</button>
+                    </div>`;
+        });
+        totalElement.textContent = total;
+        cartCount.textContent = cart.length;
+      }
+
+      function displayProducts(filteredProducts = products) {
+        let productList = document.getElementById("product-list");
+        productList.innerHTML = "";
+        filteredProducts.forEach((product) => {
+          productList.innerHTML += `
+            <div class="product">
+                <img src="${
+                  product.image ? product.image : "placeholder.jpg"
+                }" alt="${product.name}" width="90" height="90">
+                <h3>${product.name}</h3>
+                <p>Price: ₹${product.price}</p>
+                <button onclick="addToCart('${product.name}', ${
+            product.price
+          })">Add to Cart</button>
+            </div>`;
+        });
+      }
+
+      displayProducts();
+    </script>
+  </body>
+</html>
